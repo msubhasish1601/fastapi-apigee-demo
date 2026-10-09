@@ -4,219 +4,375 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apigee API Tester</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg: #f9fafb;
-            --card-bg: #ffffff;
-            --text: #1f2937;
-            --border: #e5e7eb;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 2rem;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
             display: flex;
+            align-items: flex-start;
             justify-content: center;
+            padding: 2rem 1rem;
         }
 
         .container {
             width: 100%;
-            max-width: 600px;
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 680px;
         }
 
-        h1 {
-            font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 1.5rem;
+        .header {
             text-align: center;
-            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .header p {
+            color: #94a3b8;
+            font-size: 0.9rem;
         }
 
-        .form-group {
-            margin-bottom: 1rem;
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 1.75rem;
+            margin-bottom: 1.25rem;
+            backdrop-filter: blur(10px);
         }
+
+        .card-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #a78bfa;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .card-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(167,139,250,0.2);
+        }
+
+        .form-row { display: flex; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; flex: 1; }
+        .form-group:last-child { margin-bottom: 0; }
 
         label {
             display: block;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             font-weight: 500;
-            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            margin-bottom: 0.4rem;
         }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 1rem;
-            box-sizing: border-box;
+            padding: 0.65rem 0.9rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-
-        input:focus {
+        input:focus, select:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167,139,250,0.15);
         }
+        input::placeholder { color: #475569; }
 
-        button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--primary);
-            color: white;
+        .mode-toggle {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 1.25rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 0.55rem;
             border: none;
-            border-radius: 6px;
-            font-size: 1rem;
+            border-radius: 8px;
+            font-size: 0.82rem;
             font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.2s;
-            margin-bottom: 1rem;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            color: #64748b;
         }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white;
+            box-shadow: 0 2px 8px rgba(124,58,237,0.4);
+        }
+        .mode-hint {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+            padding: 0.6rem 0.9rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            border-left: 3px solid #7c3aed;
+        }
+        .mode-hint.warn { border-left-color: #f59e0b; color: #fbbf24; }
 
-        button:hover {
-            background-color: var(--primary-hover);
+        button.btn {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            margin-top: 0.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #4f46e5);
+            color: white;
+        }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(124,58,237,0.4); }
+        .btn-green {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+        }
+        .btn-green:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(16,185,129,0.4); }
+
+        .token-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            word-break: break-all;
+            color: #34d399;
         }
 
         .result-box {
-            margin-top: 1.5rem;
+            background: #0d1117;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
             padding: 1rem;
-            background-color: #1e1e1e;
-            color: #d4d4d4;
-            border-radius: 6px;
-            font-family: monospace;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
             white-space: pre-wrap;
             word-wrap: break-word;
-            min-height: 100px;
-            max-height: 300px;
+            min-height: 120px;
+            max-height: 350px;
             overflow-y: auto;
+            color: #94a3b8;
         }
+        .result-box.success { border-color: rgba(52, 211, 153, 0.3); color: #34d399; }
+        .result-box.error { border-color: rgba(239, 68, 68, 0.3); color: #f87171; }
 
-        .section-title {
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+        .badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 999px;
             font-weight: 600;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0.5rem;
+            margin-left: 0.5rem;
         }
+        .badge-green { background: rgba(16,185,129,0.2); color: #34d399; }
+        .badge-purple { background: rgba(124,58,237,0.2); color: #a78bfa; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>🚀 Apigee API Tester</h1>
-
-    <div class="form-group">
-        <label>Apigee Base URL</label>
-        <input type="text" id="baseUrl" value="https://136.82.119.222.nip.io/api/v1" placeholder="https://YOUR_IP.nip.io/api/v1">
-    </div>
-    
-    <div class="form-group">
-        <label>Apigee API Key (x-api-key)</label>
-        <input type="password" id="apiKey" placeholder="Paste your Apigee Consumer Key here">
+    <div class="header">
+        <h1>🚀 Apigee API Tester</h1>
+        <p>Test your FastAPI + Apigee architecture from the browser</p>
     </div>
 
-    <div class="section-title">1. Authenticate (Get JWT)</div>
-    
-    <div style="display: flex; gap: 1rem;">
-        <div class="form-group" style="flex: 1;">
-            <label>Email</label>
-            <input type="email" id="email" value="admin@example.com">
+    <!-- Config Card -->
+    <div class="card">
+        <div class="card-title">⚙️ Configuration</div>
+
+        <div style="margin-bottom: 1rem;">
+            <label style="margin-bottom: 0.6rem; display: block;">Test Mode</label>
+            <div class="mode-toggle">
+                <button class="mode-btn active" id="modeDirect" onclick="setMode('direct')">
+                    ✅ Direct (Render) — Browser
+                </button>
+                <button class="mode-btn" id="modeApigee" onclick="setMode('apigee')">
+                    🔒 Via Apigee Gateway
+                </button>
+            </div>
+            <div class="mode-hint" id="modeHint">
+                Calling Render directly. CORS works perfectly here. Use this for browser testing.
+            </div>
         </div>
-        <div class="form-group" style="flex: 1;">
-            <label>Password</label>
-            <input type="password" id="password" value="Welcome1@">
+
+        <div class="form-group" id="renderUrlGroup">
+            <label>Render Backend URL <span class="badge badge-green">CORS OK</span></label>
+            <input type="text" id="renderUrl" value="https://fastapi-apigee-demo.onrender.com/api/v1">
+        </div>
+
+        <div class="form-group" id="apigeeUrlGroup" style="display:none;">
+            <label>Apigee Gateway URL <span class="badge badge-purple">Requires x-api-key</span></label>
+            <input type="text" id="apigeeUrl" value="https://136.82.119.222.nip.io/api/v1">
+        </div>
+
+        <div class="form-group" id="apiKeyGroup" style="display:none;">
+            <label>Apigee API Key (x-api-key)</label>
+            <input type="password" id="apiKey" placeholder="Paste your Apigee Consumer Key">
         </div>
     </div>
-    <button onclick="login()">Login & Get Token</button>
 
-    <div class="form-group">
-        <label>JWT Bearer Token</label>
-        <input type="text" id="jwtToken" placeholder="Token will appear here after login" readonly style="background: #f3f4f6;">
+    <!-- Auth Card -->
+    <div class="card">
+        <div class="card-title">🔑 Step 1 — Authenticate</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" value="admin@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" value="Welcome1@">
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="login()">Login & Get JWT Token</button>
+
+        <div id="tokenSection" style="display:none; margin-top: 1rem;">
+            <label>✅ JWT Token Received</label>
+            <div class="token-display" id="tokenDisplay"></div>
+        </div>
     </div>
 
-    <div class="section-title">2. Fetch Secure Data</div>
-    <button onclick="fetchCustomers()" style="background-color: #10b981;">Fetch Customers</button>
+    <!-- Customers Card -->
+    <div class="card">
+        <div class="card-title">👥 Step 2 — Fetch Secure Data</div>
+        <button class="btn btn-green" onclick="fetchCustomers()">Fetch Customers (Protected Endpoint)</button>
+    </div>
 
-    <div class="section-title">Response:</div>
-    <div class="result-box" id="resultOutput">Awaiting action...</div>
+    <!-- Response Card -->
+    <div class="card">
+        <div class="card-title">📄 Response</div>
+        <div class="result-box" id="resultOutput">Awaiting action...</div>
+    </div>
 </div>
 
 <script>
-    function logResult(data) {
-        document.getElementById('resultOutput').textContent = JSON.stringify(data, null, 2);
+    let currentMode = 'direct';
+    let jwtToken = '';
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeDirect').classList.toggle('active', mode === 'direct');
+        document.getElementById('modeApigee').classList.toggle('active', mode === 'apigee');
+
+        const hint = document.getElementById('modeHint');
+        const apiKeyGroup = document.getElementById('apiKeyGroup');
+        const apigeeUrlGroup = document.getElementById('apigeeUrlGroup');
+        const renderUrlGroup = document.getElementById('renderUrlGroup');
+
+        if (mode === 'direct') {
+            renderUrlGroup.style.display = 'block';
+            apigeeUrlGroup.style.display = 'none';
+            apiKeyGroup.style.display = 'none';
+            hint.className = 'mode-hint';
+            hint.textContent = 'Calling Render directly. CORS works perfectly here. Use this for browser testing.';
+        } else {
+            renderUrlGroup.style.display = 'none';
+            apigeeUrlGroup.style.display = 'block';
+            apiKeyGroup.style.display = 'block';
+            hint.className = 'mode-hint warn';
+            hint.textContent = '⚠️ Apigee mode may have CORS issues in the browser. Use curl or Postman for Apigee testing.';
+        }
+    }
+
+    function getBaseUrl() {
+        return currentMode === 'direct'
+            ? document.getElementById('renderUrl').value.trim()
+            : document.getElementById('apigeeUrl').value.trim();
+    }
+
+    function getHeaders(includeAuth = false) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (currentMode === 'apigee') {
+            const key = document.getElementById('apiKey').value.trim();
+            if (key) headers['x-api-key'] = key;
+        }
+        if (includeAuth && jwtToken) {
+            headers['Authorization'] = `Bearer ${jwtToken}`;
+        }
+        return headers;
+    }
+
+    function setResult(data, isError = false) {
+        const box = document.getElementById('resultOutput');
+        box.textContent = JSON.stringify(data, null, 2);
+        box.className = 'result-box ' + (isError ? 'error' : 'success');
     }
 
     async function login() {
-        const baseUrl = document.getElementById('baseUrl').value.trim();
-        const apiKey = document.getElementById('apiKey').value.trim();
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
 
-        if (!apiKey) {
-            alert("Please enter your Apigee API Key first!");
-            return;
-        }
-
-        logResult("Logging in...");
+        document.getElementById('resultOutput').textContent = 'Authenticating...';
+        document.getElementById('resultOutput').className = 'result-box';
 
         try {
-            const response = await fetch(`${baseUrl}/auth/token`, {
+            const response = await fetch(`${getBaseUrl()}/auth/token`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': apiKey
-                },
+                headers: getHeaders(),
                 body: JSON.stringify({ email, password })
             });
 
             const data = await response.json();
-            logResult(data);
 
             if (response.ok && data.access_token) {
-                document.getElementById('jwtToken').value = data.access_token;
+                jwtToken = data.access_token;
+                document.getElementById('tokenSection').style.display = 'block';
+                document.getElementById('tokenDisplay').textContent = jwtToken.substring(0, 60) + '...';
+                setResult({ message: '✅ Login successful! Token stored.', token_preview: jwtToken.substring(0, 60) + '...' });
+            } else {
+                setResult(data, true);
             }
-        } catch (error) {
-            logResult({ error: error.message, tip: "Check console and ensure CORS is enabled on Apigee/Render." });
+        } catch (err) {
+            setResult({ error: err.message, suggestion: 'If using Apigee mode, try Direct mode instead for browser testing.' }, true);
         }
     }
 
     async function fetchCustomers() {
-        const baseUrl = document.getElementById('baseUrl').value.trim();
-        const apiKey = document.getElementById('apiKey').value.trim();
-        const jwtToken = document.getElementById('jwtToken').value.trim();
-
-        if (!apiKey || !jwtToken) {
-            alert("You need both an API Key and a JWT token (login first)!");
+        if (!jwtToken) {
+            setResult({ error: 'Please login first to get a JWT token!' }, true);
             return;
         }
 
-        logResult("Fetching customers...");
+        document.getElementById('resultOutput').textContent = 'Fetching customers...';
+        document.getElementById('resultOutput').className = 'result-box';
 
         try {
-            const response = await fetch(`${baseUrl}/customers/`, {
+            const response = await fetch(`${getBaseUrl()}/customers/`, {
                 method: 'GET',
-                headers: {
-                    'x-api-key': apiKey,
-                    'Authorization': `Bearer ${jwtToken}`
-                }
+                headers: getHeaders(true)
             });
 
             const data = await response.json();
-            logResult(data);
-        } catch (error) {
-            logResult({ error: error.message });
+            setResult(data, !response.ok);
+        } catch (err) {
+            setResult({ error: err.message }, true);
         }
     }
 </script>
-
 </body>
 </html>
