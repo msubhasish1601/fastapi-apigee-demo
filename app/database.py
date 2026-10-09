@@ -2,15 +2,27 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import declarative_base
 from app.config import settings
 import ssl
+from urllib.parse import urlparse, urlencode, parse_qsl, urlunparse
 
 db_url = settings.database_url
 connect_args = {}
 
-if "sslmode=require" in db_url or "ssl=require" in db_url:
-    db_url = db_url.replace("?sslmode=require", "").replace("?ssl=require", "")
-    db_url = db_url.replace("&sslmode=require", "").replace("&ssl=require", "")
-    
-    # Create a native Python SSL context to bypass SQLAlchemy's buggy string parsing
+parsed = urlparse(db_url)
+query_params = dict(parse_qsl(parsed.query))
+
+ssl_enabled = False
+if query_params.get("sslmode") == "require" or query_params.get("ssl") == "require":
+    ssl_enabled = True
+
+# Safely remove parameters that break asyncpg
+query_params.pop("sslmode", None)
+query_params.pop("ssl", None)
+query_params.pop("channel_binding", None)
+
+parsed = parsed._replace(query=urlencode(query_params))
+db_url = urlunparse(parsed)
+
+if ssl_enabled:
     ssl_context = ssl.create_default_context()
     ssl_context.check_hostname = False
     ssl_context.verify_mode = ssl.CERT_NONE
