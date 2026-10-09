@@ -9,7 +9,18 @@ async def lifespan(app: FastAPI):
         await conn.run_sync(Base.metadata.create_all)
     yield
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(title="Apigee Demo API", lifespan=lifespan)
+
+# Enable CORS so our HTML frontend can talk to the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins (for testing)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(auth.router)
 app.include_router(customers.router)
